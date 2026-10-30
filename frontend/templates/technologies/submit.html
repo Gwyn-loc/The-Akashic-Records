@@ -1,0 +1,44 @@
+
+{% extends "base.html" %}
+{% from 'components/forms.html' import field %}
+
+{% block title %}Submit a Technology{% endblock %}
+
+{% block content %}
+  <section class="auth-layout">
+    <div>
+      <span class="pill">CONTRIBUTE TO HISTORY</span>
+      <h1>Preserve humanity's innovations.</h1>
+      <p class="lead">
+        Share a technological advancement and help expand
+        The Akashic Records.
+      </p>
+      <p>
+        Every submission is reviewed by an administrator
+        before appearing on the public timeline.
+      </p>
+    </div>
+
+    <form class="panel form-stack" method="post">
+      <h2>Technology Submission</h2>
+
+      {{ form.hidden_tag() }}
+
+      {{ field(form.name) }}
+      {{ field(form.year, help='Use negative numbers for BCE. For example, -3000.') }}
+      {{ field(form.era) }}
+      {{ field(form.category) }}
+      {{ field(form.inventor) }}
+      {{ field(form.place_of_origin) }}
+      {{ field(form.description) }}
+      {{ field(form.significance) }}
+      {{ field(form.source) }}
+
+      {{ form.submit(class_='button primary full') }}
+
+      <p class="hint">
+        Your submission will remain pending until an administrator reviews it.
+      </p>
+    </form>
+  </section>
+{% endblock %}

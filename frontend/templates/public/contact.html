@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from 'components/forms.html' import field %}
+
+{% block title %}Contact{% endblock %}
+
+{% block content %}
+<section class="auth-layout contact-page">
+  <div class="contact-intro">
+    <p class="eyebrow">CONTACT // GET IN TOUCH</p>
+    <h1 class="contact-title">BULLETPROOF HEARTS<span>?</span></h1>
+    <p class="lead">
+      Tell us something we don't know.
+      Send us a message. We'll show you how ugly the world is.
+    </p>
+
+    <div class="contact-note">
+      <span class="contact-symbol">✦</span>
+      <p>Tell me the truth are you really okay.</p>
+    </div>
+  </div>
+
+  <form class="panel form-stack contact-form" method="post">
+    {{ form.hidden_tag() }}
+
+    <div class="contact-form-heading">
+      <p class="eyebrow">YOUR MESSAGE</p>
+      <h2>Write to us</h2>
+    </div>
+
+    {{ field(form.name, autocomplete='name') }}
+    {{ field(form.email, autocomplete='email') }}
+    {{ field(form.message) }}
+
+    <div class="honeypot" aria-hidden="true">
+      {{ form.website.label }}
+      {{ form.website(tabindex='-1', autocomplete='off') }}
+    </div>
+
+    {{ form.submit(class_='button primary contact-submit') }}
+
+    <p class="contact-footer">Thank you for taking the time to reach out.</p>
+  </form>
+</section>
+{% endblock %}

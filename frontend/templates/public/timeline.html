@@ -1,0 +1,215 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}Timeline | The Akashic Records{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <p class="eyebrow">HUMANITY'S TECHNOLOGICAL EVOLUTION</p>
+    <h1>The Technology Timeline</h1>
+    <p class="lead">
+        Explore the innovations that shaped human civilization.
+    </p>
+</section>
+
+<section class="timeline"
+         id="technology-timeline"
+         aria-live="polite"
+         aria-busy="true">
+
+    <!-- Loading state -->
+    <section class="empty-state" id="timeline-loading">
+        <h2>Loading the timeline...</h2>
+        <p>Retrieving approved innovations from the archive.</p>
+    </section>
+
+    <!-- Error state -->
+    <section class="empty-state" id="timeline-error" hidden>
+        <h2>Unable to load the timeline.</h2>
+        <p id="timeline-error-message">
+            Please check your connection and try again.
+        </p>
+        <button class="button primary"
+                id="timeline-retry"
+                type="button">
+            Try again
+        </button>
+    </section>
+
+    <!-- Empty state -->
+    <section class="empty-state" id="timeline-empty" hidden>
+        <h2>No technologies available yet.</h2>
+        <p>Approved historical innovations will appear here.</p>
+    </section>
+
+    <!-- Technology records are inserted here -->
+    <div id="timeline-records"></div>
+
+</section>
+
+<script>
+(() => {
+    const timeline = document.getElementById("technology-timeline");
+    const loading = document.getElementById("timeline-loading");
+    const error = document.getElementById("timeline-error");
+    const errorMessage = document.getElementById("timeline-error-message");
+    const empty = document.getElementById("timeline-empty");
+    const records = document.getElementById("timeline-records");
+    const retry = document.getElementById("timeline-retry");
+
+    // Create a text element without interpreting its contents as HTML.
+    function createTextElement(tag, text, className = "") {
+        const element = document.createElement(tag);
+        element.textContent = text ?? "";
+
+        if (className) {
+            element.className = className;
+        }
+
+        return element;
+    }
+
+    // Build a card for one technology returned by the API.
+    function createTechnologyCard(technology) {
+        const card = document.createElement("article");
+        card.className = "panel";
+
+        card.appendChild(
+            createTextElement(
+                "p",
+                `${technology.era} · ${technology.category}`,
+                "eyebrow"
+            )
+        );
+
+        card.appendChild(
+            createTextElement("h2", technology.name)
+        );
+
+        card.appendChild(
+            createTextElement("p", `Year: ${technology.year}`)
+        );
+
+        card.appendChild(
+            createTextElement(
+                "p",
+                `Inventor or civilization: ${technology.inventor}`
+            )
+        );
+
+        card.appendChild(
+            createTextElement(
+                "p",
+                `Place of origin: ${technology.place_of_origin}`
+            )
+        );
+
+        card.appendChild(
+            createTextElement("h3", "Description")
+        );
+
+        card.appendChild(
+            createTextElement(
+                "p",
+                technology.description,
+                "preserve-lines"
+            )
+        );
+
+        card.appendChild(
+            createTextElement("h3", "Historical significance")
+        );
+
+        card.appendChild(
+            createTextElement(
+                "p",
+                technology.significance,
+                "preserve-lines"
+            )
+        );
+
+        card.appendChild(
+            createTextElement("h3", "Sources and references")
+        );
+
+        card.appendChild(
+            createTextElement(
+                "p",
+                technology.source,
+                "preserve-lines"
+            )
+        );
+
+        return card;
+    }
+
+    // Fetch approved technologies from the Flask API.
+    async function loadTimeline() {
+        timeline.setAttribute("aria-busy", "true");
+
+        loading.hidden = false;
+        error.hidden = true;
+        empty.hidden = true;
+
+        records.replaceChildren();
+
+        try {
+            const response = await fetch("/api/v1/technologies", {
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(
+                    `The server returned status ${response.status}.`
+                );
+            }
+
+            const result = await response.json();
+
+            if (!Array.isArray(result.data)) {
+                throw new Error(
+                    "The API returned an unexpected response."
+                );
+            }
+
+            // Show a message if no approved technologies exist.
+            if (result.data.length === 0) {
+                empty.hidden = false;
+            } else {
+                // Display all technologies returned by the API.
+                const fragment = document.createDocumentFragment();
+
+                result.data.forEach((technology) => {
+                    fragment.appendChild(
+                        createTechnologyCard(technology)
+                    );
+                });
+
+                records.appendChild(fragment);
+            }
+
+        } catch (exception) {
+            // Show an error message if the request fails.
+            errorMessage.textContent =
+                "We couldn't retrieve the timeline. Please try again.";
+
+            error.hidden = false;
+
+        } finally {
+            // Stop the loading state after the request finishes.
+            loading.hidden = true;
+            timeline.setAttribute("aria-busy", "false");
+        }
+    }
+
+    // Allow visitors to retry a failed request.
+    retry.addEventListener("click", loadTimeline);
+
+    // Load the timeline when the page opens.
+    loadTimeline();
+})();
+</script>
+{% endblock %}
+```

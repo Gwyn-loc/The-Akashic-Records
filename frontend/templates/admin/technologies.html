@@ -1,0 +1,70 @@
+
+{% extends "base.html" %}
+{% from 'components/pagination.html' import pager %}
+
+{% block title %}Technology Submissions{% endblock %}
+
+{% block content %}
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">ADMINISTRATION</p>
+      <h1>Technology Submissions</h1>
+      <p>Review and manage technology contributions to The Akashic Records.</p>
+    </div>
+  </header>
+
+  {% for technology in pagination.items %}
+    <section class="panel inquiry">
+      <div class="row">
+        <div>
+          <h2>{{ technology.name }}</h2>
+          <span class="label-tag">{{ technology.status|capitalize }}</span>
+        </div>
+        <p>{{ technology.year }} · {{ technology.era }}</p>
+      </div>
+
+      <p><strong>Category:</strong> {{ technology.category }}</p>
+      <p><strong>Inventor or civilization:</strong> {{ technology.inventor }}</p>
+      <p><strong>Place of origin:</strong> {{ technology.place_of_origin }}</p>
+      <p><strong>Submitted:</strong> {{ technology.created_at }}</p>
+
+      <h3>Description</h3>
+      <p class="preserve-lines">{{ technology.description }}</p>
+
+      <h3>Historical significance</h3>
+      <p class="preserve-lines">{{ technology.significance }}</p>
+
+      <h3>Sources</h3>
+      <p class="preserve-lines">{{ technology.source }}</p>
+
+      <div class="actions">
+        {% if technology.status == "pending" %}
+          <form method="post"
+                action="{{ url_for('admin.approve_technology', technology_id=technology.id) }}">
+            {{ form.hidden_tag() }}
+            <button class="button primary" type="submit">Approve</button>
+          </form>
+
+          <form method="post"
+                action="{{ url_for('admin.reject_technology', technology_id=technology.id) }}">
+            {{ form.hidden_tag() }}
+            <button class="button quiet" type="submit">Reject</button>
+          </form>
+        {% endif %}
+
+        <form method="post"
+              action="{{ url_for('admin.delete_technology', technology_id=technology.id) }}"
+              onsubmit="return confirm('Are you sure you want to permanently delete this technology?');">
+          {{ form.hidden_tag() }}
+          <button class="button danger" type="submit">Delete</button>
+        </form>
+      </div>
+    </section>
+  {% else %}
+    <section class="panel">
+      <p>No technology submissions found.</p>
+    </section>
+  {% endfor %}
+
+  {{ pager(pagination) }}
+{% endblock %}
